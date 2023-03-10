@@ -6,6 +6,10 @@
 #include <rclc/executor.h>
 #include <std_msgs/msg/int32.h>
 #include <rmw_microros/rmw_microros.h>
+#include <adafruit-gfx.h>
+#include <adafruit-st7735.h>
+
+
 
 #include "pico/stdlib.h"
 #include "pico_uart_transports.h"
@@ -34,6 +38,7 @@ int main()
 
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
+    gpio_put(LED_PIN, 1);
 
     rcl_timer_t timer;
     rcl_node_t node;
@@ -48,6 +53,12 @@ int main()
     const uint8_t attempts = 120;
 
     rcl_ret_t ret = rmw_uros_ping_agent(timeout_ms, attempts);
+
+    //custom stuff-----
+    st7735 *st = oled_create(5,8,3,2,7);
+    oled_initR(st, INITR_GREENTAB);
+    gfx_fillScreen(st->gfx, ST77XX_GREEN);
+    //-----------------
 
     if (ret != RCL_RET_OK)
     {
@@ -73,7 +84,7 @@ int main()
     rclc_executor_init(&executor, &support.context, 1, &allocator);
     rclc_executor_add_timer(&executor, &timer);
 
-    gpio_put(LED_PIN, 1);
+    //gpio_put(LED_PIN, 1);
 
     msg.data = 0;
     while (true)
