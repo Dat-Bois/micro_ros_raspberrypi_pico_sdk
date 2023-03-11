@@ -14,6 +14,12 @@
 #include "pico/stdlib.h"
 #include "pico_uart_transports.h"
 
+#define TFT_CS        5
+#define TFT_RST       7 // Or set to -1 and connect to Arduino RESET pin
+#define TFT_DC        8
+#define TFT_MOSI 3  // Data out
+#define TFT_SCLK 2  // Clock out
+
 const uint LED_PIN = 25;
 
 rcl_publisher_t publisher;
@@ -37,6 +43,11 @@ int main()
 	);
 
     gpio_init(LED_PIN);
+    gpio_init(TFT_CS);
+    gpio_init(TFT_DC);
+    gpio_init(TFT_MOSI);
+    gpio_init(TFT_SCLK);
+    gpio_init(TFT_RST);
     gpio_set_dir(LED_PIN, GPIO_OUT);
     gpio_put(LED_PIN, 1);
 
@@ -48,17 +59,17 @@ int main()
 
     allocator = rcl_get_default_allocator();
 
+    //custom stuff-----
+    st7735 *st = oled_create(TFT_CS,TFT_DC,TFT_MOSI,TFT_SCLK,TFT_RST);
+    oled_initR(st, INITR_144GREENTAB);
+    gfx_fillScreen(st->gfx, ST77XX_GREEN);
+    //-----------------
+
     // Wait for agent successful ping for 2 minutes.
     const int timeout_ms = 1000; 
     const uint8_t attempts = 120;
 
     rcl_ret_t ret = rmw_uros_ping_agent(timeout_ms, attempts);
-
-    //custom stuff-----
-    st7735 *st = oled_create(5,8,3,2,7);
-    oled_initR(st, INITR_GREENTAB);
-    gfx_fillScreen(st->gfx, ST77XX_GREEN);
-    //-----------------
 
     if (ret != RCL_RET_OK)
     {
