@@ -8,7 +8,8 @@
 #include <rmw_microros/rmw_microros.h>
 #include <adafruit-gfx.h>
 #include <adafruit-st7735.h>
-
+#include "functions-st7735.h"
+#include <time.h>
 
 
 #include "pico/stdlib.h"
@@ -63,6 +64,8 @@ int main()
     st7735 *st = oled_create(TFT_CS,TFT_DC,TFT_MOSI,TFT_SCLK,TFT_RST);
     oled_initR(st, INITR_144GREENTAB);
     gfx_fillScreen(st->gfx, ST77XX_GREEN);
+    delay(1000);
+    testlines(st, ST77XX_GREEN);
     //-----------------
 
     // Wait for agent successful ping for 2 minutes.
