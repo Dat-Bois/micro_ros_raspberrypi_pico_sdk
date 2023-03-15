@@ -50,16 +50,16 @@ void timer_callback(rcl_timer_t *timer, int64_t last_call_time)
 {
     RCLC_UNUSED(last_call_time);
     if (timer != NULL) {
-        RCSOFTCHECK(rcl_publish(&publisher, &msg, NULL));
+        RCSOFTCHECK(rcl_publish(&publisher, &msg_heartbeat, NULL));
         msg_heartbeat.data++;
   }
 }
 
 void subscription_callback(const void * msgin)
 {  
-  const std_msgs__msg__Int32 * msg = (const std_msgs__msg__Int32 *)msgin;
+  const std_msgs__msg__Int32 * msg_led = (const std_msgs__msg__Int32 *)msgin;
   //digitalWrite(LED_PIN, (msg->data == 0) ? LOW : HIGH); 
-  if(msg->data == 0) {gpio_put(LED_PIN, 0);} else{gpio_put(LED_PIN, 1);} 
+  if(msg_led->data == 0) {gpio_put(LED_PIN, 0);} else{gpio_put(LED_PIN, 1);} 
 }
 
 int main()
@@ -116,7 +116,7 @@ int main()
     RCCHECK(rclc_publisher_init_default(
         &publisher,
         &node,
-        ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg_heartbeat, Int32),
+        ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int32),
         "pico_publisher"));
 
     RCCHECK(rclc_timer_init_default(
