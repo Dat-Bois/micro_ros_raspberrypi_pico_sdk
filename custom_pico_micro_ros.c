@@ -41,8 +41,8 @@ rclc_executor_t executor_sub;
 
 void error_loop(){
   while(1){
-    digitalWrite(LED_PIN, !digitalRead(LED_PIN));
-    delay(100);
+    gpio_put(LED_PIN, !gpio_get(LED_PIN));
+    sleep_ms(100);
   }
 }
 
@@ -58,7 +58,8 @@ void timer_callback(rcl_timer_t *timer, int64_t last_call_time)
 void subscription_callback(const void * msgin)
 {  
   const std_msgs__msg__Int32 * msg = (const std_msgs__msg__Int32 *)msgin;
-  digitalWrite(LED_PIN, (msg->data == 0) ? LOW : HIGH);  
+  //digitalWrite(LED_PIN, (msg->data == 0) ? LOW : HIGH); 
+  if(msg->data == 0) {gpio_put(LED_PIN, 0);} else{gpio_put(LED_PIN, 1);} 
 }
 
 int main()
@@ -86,7 +87,7 @@ int main()
     st7735 *st = oled_create(TFT_CS,TFT_DC,TFT_MOSI,TFT_SCLK,TFT_RST);
     oled_initR(st, INITR_144GREENTAB);
     gfx_fillScreen(st->gfx, ST77XX_GREEN);
-    delay(1000);
+    sleep_ms(1000);
     testlines(st, ST77XX_GREEN);
     //-----------------
 
@@ -115,7 +116,7 @@ int main()
     RCCHECK(rclc_publisher_init_default(
         &publisher,
         &node,
-        ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int32),
+        ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg_heartbeat, Int32),
         "pico_publisher"));
 
     RCCHECK(rclc_timer_init_default(
@@ -132,11 +133,11 @@ int main()
     
     gpio_put(LED_PIN, 1);
 
-    msg.data = 0;
+    msg_heartbeat.data = 0;
 
     while (true)
     {
-        RCCHECK(rclc_executor_spin_some(&executor, RCL_MS_TO_NS(100)));
+        RCCHECK(rclc_executor_spin_some(&executor_pub, RCL_MS_TO_NS(100)));
         RCCHECK(rclc_executor_spin_some(&executor_sub, RCL_MS_TO_NS(100)));
     }
     return 0;
