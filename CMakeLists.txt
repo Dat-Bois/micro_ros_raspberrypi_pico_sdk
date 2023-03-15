@@ -16,8 +16,9 @@ add_subdirectory(/home/eesh/micro_ros_ws/src/pico-arduino-compat/libs-extra/pico
 #add_subdirectory(/home/eesh/micro_ros_ws/src/pico-arduino-compat/libs/adafruit-st7735-and-st7789-library build_pac-adafruit-st7735-and-st7789-library)
 
 add_executable(pico_micro_ros_example
-    pico_micro_ros_example.c
+    #pico_micro_ros_example.c
     pico_uart_transport.c
+    custom_pico_micro_ros.c
 )
 target_link_libraries(pico_micro_ros_example
     pico_stdlib
