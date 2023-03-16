@@ -22,19 +22,12 @@
 #define TFT_SCLK 2  // Clock out
 
 const uint LED_PIN = 25;
-// Common
-rcl_node_t node;
-rcl_allocator_t allocator;
-rclc_support_t support;
-// publisher
+
 rcl_publisher_t publisher;
 std_msgs__msg__Int32 msg_heartbeat;
-rclc_executor_t executor_pub;
-rcl_timer_t timer;
-// subscriber
+
 rcl_subscription_t subscriber;
 std_msgs__msg__Int32 msg_led;
-rclc_executor_t executor_sub;
 
 #define RCCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){error_loop();}}
 #define RCSOFTCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){}}
@@ -48,11 +41,8 @@ void error_loop(){
 
 void timer_callback(rcl_timer_t *timer, int64_t last_call_time)
 {
-    RCLC_UNUSED(last_call_time);
-    if (timer != NULL) {
-        RCSOFTCHECK(rcl_publish(&publisher, &msg_heartbeat, NULL));
-        msg_heartbeat.data++;
-  }
+    rcl_ret_t ret = rcl_publish(&publisher, &msg_heartbeat, NULL);
+    msg_heartbeat.data++;
 }
 
 void subscription_callback(const void * msgin)
@@ -80,6 +70,13 @@ int main()
     gpio_init(TFT_SCLK);
     gpio_init(TFT_RST);
     gpio_set_dir(LED_PIN, GPIO_OUT);
+
+    rcl_node_t node;
+    rcl_allocator_t allocator;
+    rclc_support_t support;
+    rclc_executor_t executor_pub;
+    rclc_executor_t executor_sub;
+    rcl_timer_t timer;
 
     allocator = rcl_get_default_allocator();
 

@@ -50,7 +50,7 @@ int main()
     gpio_init(TFT_SCLK);
     gpio_init(TFT_RST);
     gpio_set_dir(LED_PIN, GPIO_OUT);
-    gpio_put(LED_PIN, 1);
+    //gpio_put(LED_PIN, 1);
 
     rcl_timer_t timer;
     rcl_node_t node;
@@ -64,7 +64,7 @@ int main()
     st7735 *st = oled_create(TFT_CS,TFT_DC,TFT_MOSI,TFT_SCLK,TFT_RST);
     oled_initR(st, INITR_144GREENTAB);
     gfx_fillScreen(st->gfx, ST77XX_GREEN);
-    delay(1000);
+    sleep_ms(1000);
     testlines(st, ST77XX_GREEN);
     //-----------------
 
@@ -79,6 +79,8 @@ int main()
         // Unreachable agent, exiting program.
         return ret;
     }
+
+    gpio_put(LED_PIN, 1);
 
     rclc_support_init(&support, 0, NULL, &allocator);
 
@@ -98,7 +100,6 @@ int main()
     rclc_executor_init(&executor, &support.context, 1, &allocator);
     rclc_executor_add_timer(&executor, &timer);
 
-    //gpio_put(LED_PIN, 1);
 
     msg.data = 0;
     while (true)
