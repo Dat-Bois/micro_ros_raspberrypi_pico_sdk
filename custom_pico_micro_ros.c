@@ -9,7 +9,6 @@
 #include <adafruit-gfx.h>
 #include <adafruit-st7735.h>
 #include "functions-st7735.h"
-#include <time.h>
 
 
 #include "pico/stdlib.h"
@@ -49,7 +48,9 @@ void subscription_callback(const void * msgin)
 {  
   const std_msgs__msg__Int32 * msg_led = (const std_msgs__msg__Int32 *)msgin;
   //digitalWrite(LED_PIN, (msg->data == 0) ? LOW : HIGH); 
-  if(msg_led->data == 0) {gpio_put(LED_PIN, 0);} else{gpio_put(LED_PIN, 1);} 
+  if(msg_led->data == 0) {gpio_put(LED_PIN, 0);} else{gpio_put(LED_PIN, 1);}
+  st7735 *st = oled_create(TFT_CS,TFT_DC,TFT_MOSI,TFT_SCLK,TFT_RST);
+  printData(st,msg_led->data); 
 }
 
 int main()
@@ -85,7 +86,8 @@ int main()
     oled_initR(st, INITR_144GREENTAB);
     gfx_fillScreen(st->gfx, ST77XX_GREEN);
     sleep_ms(1000);
-    testlines(st, ST77XX_GREEN);
+    //testlines(st, ST77XX_GREEN);
+    printData(st, 23.2);
     //-----------------
 
     // Wait for agent successful ping for 2 minutes.
