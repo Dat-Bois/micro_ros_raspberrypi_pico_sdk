@@ -42,7 +42,7 @@ pico_enable_stdio_uart(pico_micro_ros_example 0)
 add_compile_definitions(PICO_UART_ENABLE_CRLF_SUPPORT=0)
 add_compile_definitions(PICO_STDIO_ENABLE_CRLF_SUPPORT=0)
 add_compile_definitions(PICO_STDIO_DEFAULT_CRLF=0)
-add_compile_definitions(PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS=1000)
+add_compile_definitions(PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS=5000)
 
 # Generate UF2
 pico_add_extra_outputs(pico_micro_ros_example)

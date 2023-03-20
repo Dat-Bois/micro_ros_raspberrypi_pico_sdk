@@ -5,6 +5,7 @@
 #include <rclc/rclc.h>
 #include <rclc/executor.h>
 #include <std_msgs/msg/int32.h>
+#include <std_msgs/msg/float32.h>
 #include <rmw_microros/rmw_microros.h>
 #include <adafruit-gfx.h>
 #include <adafruit-st7735.h>
@@ -26,10 +27,12 @@ rcl_publisher_t publisher;
 std_msgs__msg__Int32 msg_heartbeat;
 
 rcl_subscription_t subscriber;
-std_msgs__msg__Int32 msg_led;
+std_msgs__msg__Float32 volt_msg;
 
 #define RCCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){error_loop();}}
 #define RCSOFTCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){}}
+
+double voltage = 0.0;
 
 void error_loop(){
   while(1){
@@ -46,11 +49,12 @@ void timer_callback(rcl_timer_t *timer, int64_t last_call_time)
 
 void subscription_callback(const void * msgin)
 {  
-  const std_msgs__msg__Int32 * msg_led = (const std_msgs__msg__Int32 *)msgin;
+  const std_msgs__msg__Float32 * volt_msg = (const std_msgs__msg__Float32 *)msgin;
   //digitalWrite(LED_PIN, (msg->data == 0) ? LOW : HIGH); 
-  if(msg_led->data == 0) {gpio_put(LED_PIN, 0);} else{gpio_put(LED_PIN, 1);}
-  st7735 *st = oled_create(TFT_CS,TFT_DC,TFT_MOSI,TFT_SCLK,TFT_RST);
-  printData(st,msg_led->data); 
+  if(volt_msg->data == 0) {gpio_put(LED_PIN, 0);} else{gpio_put(LED_PIN, 1);}
+  //st7735 *st = oled_create(TFT_CS,TFT_DC,TFT_MOSI,TFT_SCLK,TFT_RST);
+  //printData(st,msg_led->data); 
+  voltage = volt_msg->data;
 }
 
 int main()
@@ -85,9 +89,10 @@ int main()
     st7735 *st = oled_create(TFT_CS,TFT_DC,TFT_MOSI,TFT_SCLK,TFT_RST);
     oled_initR(st, INITR_144GREENTAB);
     gfx_fillScreen(st->gfx, ST77XX_GREEN);
-    sleep_ms(1000);
+    sleep_ms(5000);
+    gfx_fillScreen(st->gfx, ST77XX_BLACK);
     //testlines(st, ST77XX_GREEN);
-    printData(st, 23.2);
+    printData(st, 23.2921);
     //-----------------
 
     // Wait for agent successful ping for 2 minutes.
@@ -109,7 +114,7 @@ int main()
     RCCHECK(rclc_subscription_init_default(
       &subscriber,
       &node,
-      ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int32),
+      ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float32),
       "pico_subscriber"));
 
     RCCHECK(rclc_publisher_init_default(
@@ -128,7 +133,7 @@ int main()
     RCCHECK(rclc_executor_add_timer(&executor_pub, &timer));
 
     RCCHECK(rclc_executor_init(&executor_sub, &support.context, 1, &allocator));
-    RCCHECK(rclc_executor_add_subscription(&executor_sub, &subscriber, &msg_led, &subscription_callback, ON_NEW_DATA));
+    RCCHECK(rclc_executor_add_subscription(&executor_sub, &subscriber, &volt_msg, &subscription_callback, ON_NEW_DATA));
     
     gpio_put(LED_PIN, 1);
 
@@ -138,6 +143,7 @@ int main()
     {
         RCCHECK(rclc_executor_spin_some(&executor_pub, RCL_MS_TO_NS(100)));
         RCCHECK(rclc_executor_spin_some(&executor_sub, RCL_MS_TO_NS(100)));
+        printData(st,voltage);
     }
     return 0;
 }
