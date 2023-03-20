@@ -1,0 +1,23 @@
+#for mac
+sudo snap install micro-xrce-dds-agent --edge
+sudo snap set micro-xrce-dds-agent daemon=true
+sudo snap install core
+sudo snap refresh core --edge
+sudo snap set core experimental.hotplug=true
+sudo systemctl restart snapd
+# mac ; run to connect 
+snap interface serial-port
+snap connect micro-xrce-dds-agent:serial-port snapd:pico
+sudo micro-xrce-dds-agent serial --dev /dev/ttyACM0 baudrate=115200
+
+#for windows
+sudo snap install micro-ros-agent
+sudo snap set core experimental.hotplug=true
+sudo systemctl restart snapd
+# windows ; run to connect
+snap interface serial-port
+snap connect micro-ros-agent:serial-port snapd:pico-1
+sudo micro-ros-agent serial --dev /dev/ttyACM0 baudrate=115200
+
+
+
