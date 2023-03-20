@@ -33,6 +33,10 @@ std_msgs__msg__Float32 volt_msg;
 #define RCSOFTCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){}}
 
 double voltage = 0.0;
+double roll = 0.0;
+double pitch = 0.0;
+double yaw = 0.0;
+bool kidnap = false;
 
 void error_loop(){
   while(1){
@@ -92,7 +96,7 @@ int main()
     sleep_ms(5000);
     gfx_fillScreen(st->gfx, ST77XX_BLACK);
     //testlines(st, ST77XX_GREEN);
-    printData(st, 23.2921);
+    printData(st, 23.2921, roll, pitch, yaw, kidnap);
     //-----------------
 
     // Wait for agent successful ping for 2 minutes.
@@ -143,7 +147,7 @@ int main()
     {
         RCCHECK(rclc_executor_spin_some(&executor_pub, RCL_MS_TO_NS(100)));
         RCCHECK(rclc_executor_spin_some(&executor_sub, RCL_MS_TO_NS(100)));
-        printData(st,voltage);
+        printData(st,voltage, roll, pitch, yaw, kidnap);
     }
     return 0;
 }
