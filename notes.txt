@@ -20,4 +20,7 @@ snap connect micro-ros-agent:serial-port snapd:pico-1
 sudo micro-ros-agent serial --dev /dev/ttyACM0 baudrate=115200
 
 
+#in adafruit gfx library alter gfx_print_d_digits(double d, int digits) ->print(d, digits)
+
+
 
